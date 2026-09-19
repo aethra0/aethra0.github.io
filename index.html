@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Математика</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: #050505;
+            color: #e8e8e8;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            cursor: crosshair;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0; left: 0;
+            z-index: -1;
+        }
+
+        main {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 72px;
+            letter-spacing: 16px;
+            text-transform: uppercase;
+            color: #ffffff;
+            text-shadow: 0 0 10px #ffffff, 0 0 40px #cccccc, 0 0 80px #888888;
+            animation: glow 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 10px #ffffff, 0 0 40px #cccccc, 0 0 80px #888888; }
+            to   { text-shadow: 0 0 20px #ffffff, 0 0 60px #ffffff, 0 0 120px #aaaaaa; }
+        }
+
+        .subtitle {
+            margin-top: 24px;
+            color: #999;
+            font-size: 20px;
+            letter-spacing: 6px;
+        }
+
+        .quote {
+            margin-top: 60px;
+            max-width: 560px;
+            color: #bbb;
+            font-size: 18px;
+            font-style: italic;
+            line-height: 1.7;
+            border-left: 2px solid #333;
+            padding-left: 20px;
+            text-align: left;
+        }
+
+        .quote-author {
+            margin-top: 15px;
+            font-size: 13px;
+            color: #666;
+            font-style: normal;
+            letter-spacing: 2px;
+        }
+
+        .hint {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #555;
+            font-size: 13px;
+            letter-spacing: 3px;
+            animation: fade 6s forwards;
+        }
+
+        @keyframes fade {
+            0%   { opacity: 0; }
+            20%  { opacity: 1; }
+            80%  { opacity: 1; }
+            100% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="space"></canvas>
+
+    <main>
+        <h1>Математика</h1>
+        <p class="subtitle">— царица наук —</p>
+
+        <blockquote class="quote">
+            «Математика — это язык, на котором написана книга Вселенной».
+            <div class="quote-author">— Галилео Галилей</div>
+        </blockquote>
+    </main>
+
+    <p class="hint">двигай курсором</p>
+
+    <script>
+        console.log("Ты нашёл пасхалку. Галилей гордится тобой 🌌");
+
+        const canvas = document.getElementById('space');
+        const ctx = canvas.getContext('2d');
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        const stars = [];
+        for (let i = 0; i < 220; i++) {
+            const layer = Math.random();
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                radius: 0.4 + layer * 1.6,
+                depth: layer,
+                alpha: 0.3 + layer * 0.7
+            });
+        }
+
+        let targetX = 0, targetY = 0;
+        let currentX = 0, currentY = 0;
+
+        // Реакция на мышь (компьютер)...
+        document.addEventListener('mousemove', (e) => {
+            targetX = (e.clientX / window.innerWidth - 0.5) * 2;
+            targetY = (e.clientY / window.innerHeight - 0.5) * 2;
+        });
+
+        // ...и на палец (телефон/планшет)
+        document.addEventListener('touchmove', (e) => {
+            const touch = e.touches[0];
+            targetX = (touch.clientX / window.innerWidth - 0.5) * 2;
+            targetY = (touch.clientY / window.innerHeight - 0.5) * 2;
+        }, { passive: true });
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            currentX += (targetX - currentX) * 0.05;
+            currentY += (targetY - currentY) * 0.05;
+
+            stars.forEach(star => {
+                const shiftX = -currentX * star.depth * 60;
+                const shiftY = -currentY * star.depth * 60;
+
+                const twinkle = 0.7 + 0.3 * Math.sin(Date.now() / 800 + star.x);
+
+                ctx.beginPath();
+                ctx.arc(star.x + shiftX, star.y + shiftY, star.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha * twinkle})`;
+                ctx.fill();
+            });
+
+            requestAnimationFrame(draw);
+        }
+
+        draw();
+    </script>
+
+</body>
+</html>
