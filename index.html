@@ -23,7 +23,7 @@
         }
 
         main {
-            height: 100vh;
+            height: 100dvh;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -154,13 +154,14 @@
             currentY += (targetY - currentY) * 0.05;
 
             stars.forEach(star => {
+                stars.forEach(star => {
                 const shiftX = -currentX * star.depth * 60;
                 const shiftY = -currentY * star.depth * 60;
 
                 const twinkle = 0.7 + 0.3 * Math.sin(Date.now() / 800 + star.x);
+
                 const sx = ((star.x + shiftX) % canvas.width + canvas.width) % canvas.width;
                 const sy = ((star.y + shiftY) % canvas.height + canvas.height) % canvas.height;
-                ctx.arc(sx, sy, star.radius, 0, Math.PI * 2);
                
                 ctx.beginPath();
                 ctx.arc(star.x + shiftX, star.y + shiftY, star.radius, 0, Math.PI * 2);
