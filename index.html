@@ -135,13 +135,11 @@
         let targetX = 0, targetY = 0;
         let currentX = 0, currentY = 0;
 
-        // Реакция на мышь (компьютер)...
         document.addEventListener('mousemove', (e) => {
             targetX = (e.clientX / window.innerWidth - 0.5) * 2;
             targetY = (e.clientY / window.innerHeight - 0.5) * 2;
         });
 
-        // ...и на палец (телефон/планшет)
         document.addEventListener('touchmove', (e) => {
             const touch = e.touches[0];
             targetX = (touch.clientX / window.innerWidth - 0.5) * 2;
