@@ -2,6 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Математика</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -10,7 +11,7 @@
             background-color: #050505;
             color: #e8e8e8;
             font-family: 'Segoe UI', Arial, sans-serif;
-            height: 100vh;
+            height: 100dvh;
             overflow: hidden;
             cursor: crosshair;
         }
@@ -157,7 +158,10 @@
                 const shiftY = -currentY * star.depth * 60;
 
                 const twinkle = 0.7 + 0.3 * Math.sin(Date.now() / 800 + star.x);
-
+                const sx = ((star.x + shiftX) % canvas.width + canvas.width) % canvas.width;
+                const sy = ((star.y + shiftY) % canvas.height + canvas.height) % canvas.height;
+                ctx.arc(sx, sy, star.radius, 0, Math.PI * 2);
+               
                 ctx.beginPath();
                 ctx.arc(star.x + shiftX, star.y + shiftY, star.radius, 0, Math.PI * 2);
                 ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha * twinkle})`;
