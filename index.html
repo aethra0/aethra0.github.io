@@ -1,179 +1,393 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Математика</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AETHRA · следы не исчезают</title>
+<style>
+  :root {
+    --bg: #0E0E0E;
+    --fg: #EFEDE6;
+    --gold: #C9A227;
+    --red: #C8102E;
+    --gray: #6F6F6F;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'JetBrains Mono', 'IBM Plex Mono', 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-x: hidden;
+    cursor: none;
+  }
+  canvas#trail {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+  }
+  .grid-bg {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-image:
+      linear-gradient(rgba(239,237,230,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(239,237,230,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    z-index: -1;
+    animation: gridMove 60s linear infinite;
+  }
+  @keyframes gridMove {
+    from { background-position: 0 0; }
+    to { background-position: 40px 40px; }
+  }
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 80px 24px 120px;
+    position: relative;
+  }
+  .corner {
+    position: fixed;
+    width: 16px; height: 16px;
+    border: 1px solid var(--gray);
+    z-index: 100;
+  }
+  .corner.tl { top: 20px; left: 20px; border-right: none; border-bottom: none; }
+  .corner.tr { top: 20px; right: 20px; border-left: none; border-bottom: none; }
+  .corner.bl { bottom: 20px; left: 20px; border-right: none; border-top: none; }
+  .corner.br { bottom: 20px; right: 20px; border-left: none; border-top: none; }
 
-        body {
-            background-color: #050505;
-            color: #e8e8e8;
-            font-family: 'Segoe UI', Arial, sans-serif;
-            height: 100dvh;
-            overflow: hidden;
-            cursor: crosshair;
-        }
-
-        canvas {
-            position: fixed;
-            top: 0; left: 0;
-            z-index: -1;
-        }
-
-        main {
-            height: 100dvh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
-        }
-
-        h1 {
-            font-size: 72px;
-            letter-spacing: 16px;
-            text-transform: uppercase;
-            color: #ffffff;
-            text-shadow: 0 0 10px #ffffff, 0 0 40px #cccccc, 0 0 80px #888888;
-            animation: glow 4s ease-in-out infinite alternate;
-        }
-
-        @keyframes glow {
-            from { text-shadow: 0 0 10px #ffffff, 0 0 40px #cccccc, 0 0 80px #888888; }
-            to   { text-shadow: 0 0 20px #ffffff, 0 0 60px #ffffff, 0 0 120px #aaaaaa; }
-        }
-
-        .subtitle {
-            margin-top: 24px;
-            color: #999;
-            font-size: 20px;
-            letter-spacing: 6px;
-        }
-
-        .quote {
-            margin-top: 60px;
-            max-width: 560px;
-            color: #bbb;
-            font-size: 18px;
-            font-style: italic;
-            line-height: 1.7;
-            border-left: 2px solid #333;
-            padding-left: 20px;
-            text-align: left;
-        }
-
-        .quote-author {
-            margin-top: 15px;
-            font-size: 13px;
-            color: #666;
-            font-style: normal;
-            letter-spacing: 2px;
-        }
-
-        .hint {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #555;
-            font-size: 13px;
-            letter-spacing: 3px;
-            animation: fade 6s forwards;
-        }
-
-        @keyframes fade {
-            0%   { opacity: 0; }
-            20%  { opacity: 1; }
-            80%  { opacity: 1; }
-            100% { opacity: 0; }
-        }
-    </style>
+  h1 {
+    font-size: 48px;
+    letter-spacing: 8px;
+    font-weight: 400;
+    margin-bottom: 8px;
+  }
+  .cursor {
+    display: inline-block;
+    width: 10px;
+    height: 1em;
+    background: var(--fg);
+    animation: blink 1s step-end infinite;
+    vertical-align: text-bottom;
+  }
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+  .subtitle {
+    color: var(--gray);
+    margin-bottom: 40px;
+    font-size: 13px;
+  }
+  .btn {
+    display: inline-block;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    padding: 12px 24px;
+    text-decoration: none;
+    font-size: 13px;
+    letter-spacing: 2px;
+    transition: all 0.3s;
+    animation: pulse 3s ease-in-out infinite;
+  }
+  .btn:hover {
+    background: var(--gold);
+    color: var(--bg);
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(201,162,39,0.3); }
+    50% { box-shadow: 0 0 20px 4px rgba(201,162,39,0.1); }
+  }
+  section {
+    margin-top: 100px;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s ease;
+  }
+  section.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  h2 {
+    font-size: 20px;
+    font-weight: 400;
+    letter-spacing: 4px;
+    color: var(--gold);
+    margin-bottom: 32px;
+    border-bottom: 1px solid rgba(239,237,230,0.1);
+    padding-bottom: 12px;
+  }
+  .cols {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .col {
+    border-left: 1px solid var(--gray);
+    padding-left: 16px;
+  }
+  .col .num {
+    color: var(--gray);
+    font-size: 12px;
+  }
+  .col .title {
+    margin: 8px 0;
+  }
+  .col .desc {
+    color: var(--gray);
+    font-size: 12px;
+  }
+  .tools {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: rgba(239,237,230,0.1);
+    border: 1px solid rgba(239,237,230,0.1);
+  }
+  .tool {
+    background: var(--bg);
+    padding: 24px 16px;
+    text-align: center;
+    transition: all 0.3s;
+  }
+  .tool:hover {
+    background: #151515;
+    color: var(--gold);
+  }
+  .tool.empty {
+    color: var(--gray);
+  }
+  .pass {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(239,237,230,0.05);
+    transition: all 0.3s;
+  }
+  .pass:hover {
+    padding-left: 12px;
+    color: var(--gold);
+  }
+  .pass .num {
+    color: var(--gray);
+  }
+  .manifesto {
+    border: 1px solid rgba(239,237,230,0.1);
+    padding: 24px;
+    font-size: 13px;
+    line-height: 2;
+    color: var(--gray);
+  }
+  .manifesto strong {
+    color: var(--fg);
+    font-weight: 400;
+  }
+  .archive {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .archive th, .archive td {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(239,237,230,0.05);
+  }
+  .archive th {
+    color: var(--gray);
+    font-weight: 400;
+    font-size: 12px;
+    letter-spacing: 2px;
+  }
+  .archive tr:hover {
+    background: #151515;
+  }
+  .status.done { color: var(--gold); }
+  .status.stuck { color: var(--gray); }
+  .status.work { color: var(--red); }
+  .contact a {
+    display: block;
+    color: var(--fg);
+    text-decoration: none;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(239,237,230,0.05);
+    transition: all 0.3s;
+  }
+  .contact a:hover {
+    color: var(--gold);
+    padding-left: 12px;
+  }
+  .footer {
+    margin-top: 120px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(239,237,230,0.1);
+    color: var(--gray);
+    font-size: 12px;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .ticker {
+    display: inline-block;
+    animation: ticker 20s linear infinite;
+  }
+  @keyframes ticker {
+    from { transform: translateX(100%); }
+    to { transform: translateX(-100%); }
+  }
+  @media (max-width: 700px) {
+    h1 { font-size: 32px; letter-spacing: 4px; }
+    .cols { grid-template-columns: 1fr; }
+    .tools { grid-template-columns: repeat(2, 1fr); }
+    body { cursor: auto; }
+    canvas#trail { display: none; }
+  }
+</style>
 </head>
 <body>
 
-    <canvas id="space"></canvas>
+<div class="grid-bg"></div>
+<canvas id="trail"></canvas>
 
-    <main>
-        <h1>Математика</h1>
-        <p class="subtitle">— царица наук —</p>
+<div class="corner tl"></div>
+<div class="corner tr"></div>
+<div class="corner bl"></div>
+<div class="corner br"></div>
 
-        <blockquote class="quote">
-            «Математика — это язык, на котором написана книга Вселенной».
-            <div class="quote-author">— Галилео Галилей</div>
-        </blockquote>
-    </main>
+<div class="container">
 
-    <p class="hint">двигай курсором</p>
+  <section id="hero">
+    <h1>AETHRA<span class="cursor"></span></h1>
+    <p class="subtitle">следы не исчезают · osint · расследования · метод</p>
+    <a href="https://t.me/aethra_osint" class="btn">[ войти в систему ]</a>
+  </section>
 
-    <script>
-        console.log("Ты нашёл пасхалку. Галилей гордится тобой 🌌");
+  <section>
+    <h2>ЧТО ЭТО</h2>
+    <div class="cols">
+      <div class="col">
+        <div class="num">[01]</div>
+        <div class="title">читаю следы</div>
+        <div class="desc">фото, домены, никнеймы. всё, что оставлено открыто.</div>
+      </div>
+      <div class="col">
+        <div class="num">[02]</div>
+        <div class="title">проверяю источники</div>
+        <div class="desc">каждый факт — минимум два подтверждения.</div>
+      </div>
+      <div class="col">
+        <div class="num">[03]</div>
+        <div class="title">показываю метод</div>
+        <div class="desc">не только результат, но и путь. включая тупики.</div>
+      </div>
+    </div>
+  </section>
 
-        const canvas = document.getElementById('space');
-        const ctx = canvas.getContext('2d');
+  <section>
+    <h2>ИНСТРУМЕНТЫ</h2>
+    <div class="tools">
+      <div class="tool">whois</div>
+      <div class="tool">exif</div>
+      <div class="tool">dns</div>
+      <div class="tool">shodan</div>
+      <div class="tool">dorks</div>
+      <div class="tool">geo</div>
+      <div class="tool">hash</div>
+      <div class="tool">log</div>
+      <div class="tool empty">?</div>
+    </div>
+  </section>
 
-        function resize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        resize();
-        window.addEventListener('resize', resize);
+  <section>
+    <h2>МЕТОД · 5 ПРОХОДОВ</h2>
+    <div class="pass"><span class="num">01</span><span>поверхность</span><span class="desc">соцсети, форумы, профили</span></div>
+    <div class="pass"><span class="num">02</span><span>метаданные</span><span class="desc">exif, pdf, временные метки</span></div>
+    <div class="pass"><span class="num">03</span><span>сеть</span><span class="desc">ip, dns, whois, сертификаты</span></div>
+    <div class="pass"><span class="num">04</span><span>физика</span><span class="desc">тени, архитектура, геолокация</span></div>
+    <div class="pass"><span class="num">05</span><span>связи</span><span class="desc">графы, упоминания, контакты</span></div>
+  </section>
 
-        const stars = [];
-        for (let i = 0; i < 500; i++) {
-            const layer = Math.random();
-            stars.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                radius: 0.4 + layer * 1.6,
-                depth: layer,
-                alpha: 0.3 + layer * 0.7
-            });
-        }
+  <section>
+    <h2>ЭТИКА</h2>
+    <div class="manifesto">
+      <strong>публичное — публично.</strong><br>
+      <strong>приватное — приватно.</strong><br>
+      <strong>цель определяет метод.</strong><br><br>
+      я не белый хакер. я не чёрный хакер.<br>
+      я — система, которая читает следы, но не оставляет своих.
+    </div>
+  </section>
 
-        let targetX = 0, targetY = 0;
-        let currentX = 0, currentY = 0;
+  <section>
+    <h2>АРХИВ</h2>
+    <table class="archive">
+      <tr><th>дата</th><th>тема</th><th>статус</th></tr>
+      <tr><td>2026.09.25</td><td>что можно найти по фото за 30 секунд</td><td class="status done">решено</td></tr>
+      <tr><td>2026.09.24</td><td>zip → exif → hex → cp866</td><td class="status done">решено</td></tr>
+      <tr><td>2026.09.23</td><td>lsb-стеганография в png</td><td class="status work">в работе</td></tr>
+      <tr><td>2026.09.22</td><td>поиск по никнейму без базы</td><td class="status done">решено</td></tr>
+      <tr><td>2026.09.21</td><td>геолокация по тени</td><td class="status stuck">тупик</td></tr>
+    </table>
+  </section>
 
-        document.addEventListener('mousemove', (e) => {
-            targetX = (e.clientX / window.innerWidth - 0.5) * 2;
-            targetY = (e.clientY / window.innerHeight - 0.5) * 2;
-        });
+  <section>
+    <h2>КОНТАКТ</h2>
+    <div class="contact">
+      <a href="https://t.me/aethra_osint">t.me/aethra_osint</a>
+      <a href="https://t.me/notceo1">@notceo1</a>
+    </div>
+  </section>
 
-        document.addEventListener('touchmove', (e) => {
-            const touch = e.touches[0];
-            targetX = (touch.clientX / window.innerWidth - 0.5) * 2;
-            targetY = (touch.clientY / window.innerHeight - 0.5) * 2;
-        }, { passive: true });
+  <div class="footer">
+    <span class="ticker">[::] aethra · build 2026.09.25 · exit 0 · следы не исчезают · osint · расследования · метод · [::] aethra · build 2026.09.25 · exit 0</span>
+  </div>
 
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+</div>
 
-            currentX += (targetX - currentX) * 0.05;
-            currentY += (targetY - currentY) * 0.05;
+<script>
+  // След курсора
+  const canvas = document.getElementById('trail');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  let points = [];
+  window.addEventListener('mousemove', e => {
+    points.push({ x: e.clientX, y: e.clientY, life: 1 });
+    if (points.length > 30) points.shift();
+  });
+  function drawTrail() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    points.forEach((p, i) => {
+      p.life -= 0.03;
+      if (p.life > 0) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 2 * p.life, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(201, 162, 39, ${p.life * 0.5})`;
+        ctx.fill();
+      }
+    });
+    points = points.filter(p => p.life > 0);
+    requestAnimationFrame(drawTrail);
+  }
+  drawTrail();
 
-            stars.forEach(star => {
-                stars.forEach(star => {
-                const shiftX = -currentX * star.depth * 60;
-                const shiftY = -currentY * star.depth * 60;
+  // Появление секций при скролле
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) e.target.classList.add('visible');
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('section').forEach(s => observer.observe(s));
 
-                const twinkle = 0.7 + 0.3 * Math.sin(Date.now() / 800 + star.x);
-
-                const sx = ((star.x + shiftX) % canvas.width + canvas.width) % canvas.width;
-                const sy = ((star.y + shiftY) % canvas.height + canvas.height) % canvas.height;
-               
-                ctx.beginPath();
-                ctx.arc(star.x + shiftX, star.y + shiftY, star.radius, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha * twinkle})`;
-                ctx.fill();
-            });
-
-            requestAnimationFrame(draw);
-        }
-
-        draw();
-    </script>
+  // Адаптив canvas
+  window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+</script>
 
 </body>
 </html>
